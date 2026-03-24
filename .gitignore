@@ -220,4 +220,4 @@ checkpoints
 outputs/task_1/_spark_metadata
 outputs/task_1/*.crc
 
-outputs/task_2/batch_*/*.crc
+outputs/task_*/batch_*/*.crc
