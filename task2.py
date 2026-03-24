@@ -24,7 +24,7 @@ parsed_df = init_df.select(
 
 # Convert timestamp column to TimestampType and add a watermark
 parsed_df = parsed_df.withColumn("timestamp", col("timestamp").cast(TimestampType()))
-parsed_df = parsed_df.withWatermark("timestamp", "45 seconds")
+parsed_df = parsed_df.withWatermark("timestamp", "30 seconds")
 
 # Compute aggregations: total fare and average distance grouped by driver_id
 result_df = parsed_df.groupBy("driver_id").agg(
@@ -36,12 +36,13 @@ result_df = parsed_df.groupBy("driver_id").agg(
 
     # Save the batch DataFrame as a CSV file with the batch ID in the filename
 
-def write_to_csv(result_df, batch_id):
-    result_df.write.csv(f"outputs/task_2/batch_{batch_id}", header=True, mode="overwrite")
+def write_to_csv(batch_df, batch_id):
+    batch_df.write.csv(f"outputs/task_2/batch_{batch_id}", header=True, mode="overwrite")
     
 
+
 # Use foreachBatch to apply the function to each micro-batch
-query = result_df.writeStream.foreachBatch(write_to_csv).start()
+query = result_df.writeStream.outputMode("complete").foreachBatch(write_to_csv).start()
 
 
 query.awaitTermination()
